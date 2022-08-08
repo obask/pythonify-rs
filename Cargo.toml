@@ -1,0 +1,8 @@
+[package]
+name = "pythonify-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rustpython-ast = { git = "https://github.com/RustPython/RustPython", rev = "9c2847af" }
+rustpython-parser = { git = "https://github.com/RustPython/RustPython", rev = "9c2847af" }
