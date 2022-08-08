@@ -1,39 +1,36 @@
+use std::mem::swap;
 use rustpython_parser::ast::{Stmt, StmtKind, Suite};
 use crate::mlir::{Block, Label, Operator, Region};
 
 pub(crate) struct PyAstVisitor {
     x: f64,
-    y: f64,
 }
 
 impl PyAstVisitor {
     pub fn new() -> Self {
-        return Self { x: 0.0, y: 0.0 };
+        return Self { x: 0.0 };
     }
 
-    pub fn visit_suite(&self, s: Suite) -> Operator {
-        for c in s {
-            self.visit_stmt(c);
+    pub fn visit_suite(&self, suite: Suite) -> Operator {
+        let mut items: Vec<Operator> = vec![];
+        for stmt in suite {
+            items.push(self.visit_stmt(stmt));
         }
-        let b1 = Block {
-            label: Label { name: "^bb0".to_string() },
-            items: vec![],
-        };
-        let b2 = Block {
-            label: Label { name: "^bb1".to_string() },
-            items: vec![],
-        };
-        let r: Vec<Block> = vec![b1, b2];
-        return Operator { name: "py.module".to_string(), regions: vec![r] };
+        let label = Label { name: "^bb0".to_string() };
+        let vec1 = vec![vec![Block { label, items }]];
+        return Operator { name: "module".to_string(), regions: vec1 };
     }
 
-    fn visit_stmt(&self, s: Stmt) -> Operator {
-        let mut op = Operator{ name: "".to_string(), regions: vec![] };
-        match s.node {
-            StmtKind::FunctionDef { name, .. } => {
-                println!("{}", name);
+    fn visit_stmt(&self, stmt: Stmt) -> Operator {
+        let mut op = Operator{ name: "111".to_string(), regions: vec![] };
+        let kind = stmt.node;
+        match kind {
+            StmtKind::FunctionDef { .. } => {
+                println!("{:?}", kind);
             }
-            StmtKind::AsyncFunctionDef { .. } => {}
+            StmtKind::AsyncFunctionDef { .. } => {
+                println!("{:?}", kind);
+            }
             StmtKind::ClassDef { .. } => {}
             StmtKind::Return { .. } => {}
             StmtKind::Delete { .. } => {}
